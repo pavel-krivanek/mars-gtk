@@ -634,7 +634,7 @@ GtkWidget >> tooltipText [
 { #category : #accessing }
 GtkWidget >> tooltipText: aString [
 
-	self setTooltipText: aString asString
+	self setTooltipText: (aString ifNil: [ nil ] ifNotNil: [ nil asString ])
 ]
 
 { #category : #accessing }
