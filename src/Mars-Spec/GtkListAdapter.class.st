@@ -70,3 +70,7 @@ GtkListAdapter >> refreshWidgetHeaderTitle [
 	self model headerTitle ifNotNil: [(widget columns at: 1) title: self model headerTitle].
 	widget headersVisible: self model headerTitle isNotNil
 ]
+
+{ #category : #events }
+GtkListAdapter >> refreshWidgetList [
+]

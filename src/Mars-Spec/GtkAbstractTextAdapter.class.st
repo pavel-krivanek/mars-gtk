@@ -28,5 +28,10 @@ GtkAbstractTextAdapter >> setText: aString to: gtkWidget [
 { #category : #accessing }
 GtkAbstractTextAdapter >> text: aString [ 
 	
+	| textToEnter |
+	textToEnter := aString 
+		ifNotNil: [ aString asString ]
+		ifNil: [ '' ].
+	
 	self setText: aString to: widget
 ]

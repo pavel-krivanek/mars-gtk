@@ -215,7 +215,7 @@ GObject >> gFree: aPointer [
 GObject >> gObjectGet: aName into: aBuffer [
 
 	self 
-		ffiCall: #(void g_object_get (self, const gchar *aName, void* aBuffer, 0)) 
+		ffiCall: #(void g_object_get (self, const gchar *aName, void* aBuffer, NULL)) 
 		module: GObjectLibrary
 ]
 
@@ -223,7 +223,7 @@ GObject >> gObjectGet: aName into: aBuffer [
 GObject >> gObjectGet: aName intoAddress: aBuffer [
 
 	self 
-		ffiCall: #(void g_object_get (self, const gchar *aName, gpointer *aBuffer, 0))
+		ffiCall: #(void g_object_get (self, const gchar *aName, gpointer *aBuffer, NULL))
 		module: GObjectLibrary		
 ]
 
@@ -271,7 +271,7 @@ GObject >> gObjectGetString: aName [
 GObject >> gObjectSet: aName toBoolean: aBoolean [
 
 	self 
-		ffiCall: #(void g_object_set (self, const gchar *aName, gboolean aBoolean, 0))
+		ffiCall: #(void g_object_set (self, const gchar *aName, gboolean aBoolean, NULL))
 		module: GObjectLibrary
 ]
 
@@ -279,7 +279,7 @@ GObject >> gObjectSet: aName toBoolean: aBoolean [
 GObject >> gObjectSet: aName toDouble: aNumber [
 
 	self 
-		ffiCall: #(void g_object_set (self, const gchar *aName, gdouble aNumber, 0))
+		ffiCall: #(void g_object_set (self, const gchar *aName, gdouble aNumber, NULL))
 		module: GObjectLibrary
 ]
 
@@ -287,7 +287,7 @@ GObject >> gObjectSet: aName toDouble: aNumber [
 GObject >> gObjectSet: aName toInteger: aNumber [
 
 	self 
-		ffiCall: #(void g_object_set (self, const gchar *aName, gint aNumber, 0))
+		ffiCall: #(void g_object_set (self, const gchar *aName, gint aNumber, NULL))
 		module: GObjectLibrary
 ]
 
@@ -295,7 +295,7 @@ GObject >> gObjectSet: aName toInteger: aNumber [
 GObject >> gObjectSet: aName toString: aString [
 
 	self 
-		ffiCall: #(void g_object_set ( self, const gchar *aName, gchar *aString, 0))
+		ffiCall: #(void g_object_set ( self, const gchar *aName, gchar *aString, NULL))
 		module: GObjectLibrary	
 ]
 
