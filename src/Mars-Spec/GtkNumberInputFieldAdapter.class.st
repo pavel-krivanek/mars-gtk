@@ -17,8 +17,8 @@ GtkNumberInputFieldAdapter >> addModelTo: gtkSpinButton [
 	
 	self model isFloat ifTrue: [ 
 		gtkSpinButton digits: self model digits ].
-	"self model climbRate ifNotNil: [ 
-		gtkSpinButton climbRate: self model climbRate ]"
+	self model climbRate ifNotNil: [ 
+		gtkSpinButton climbRate: self model climbRate ]
 ]
 
 { #category : #private }

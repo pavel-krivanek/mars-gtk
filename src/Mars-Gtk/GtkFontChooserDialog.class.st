@@ -20,7 +20,7 @@ GtkFontChooserDialog class >> example [
 { #category : #private }
 GtkFontChooserDialog class >> fontChooserDialogNewTitle: title [
 
-	^ self ffiCall: #(GtkFontChooserDialog *gtk_font_chooser_dialog_new (const gchar *title, NULL))
+	^ self ffiCall: #(GtkFontChooserDialog *gtk_font_chooser_dialog_new (const gchar *title, 0))
 ]
 
 { #category : #'instance creation' }
