@@ -46,8 +46,8 @@ GtkAdapter >> addModelTo: gtkWidget [
 { #category : #building }
 GtkAdapter >> addSettingsTo: gtkWidget [
 	"A secondary initialization generic to all widgets"
-	
-	gtkWidget sensitive: self presenter isEnabled.
+			
+	gtkWidget sensitive: (self enablementStatusOf: self presenter).
 	self presenter help ifNotNil: [ gtkWidget tooltipText: self presenter help ].
 	self presenter whenEnabledChanged: [ gtkWidget sensitive: self presenter isEnabled ].
 	
@@ -99,6 +99,17 @@ GtkAdapter >> enabled: aBoolean [
 
 	self widgetDo: [ :w |
 		w sensitive: aBoolean ]
+]
+
+{ #category : #accessing }
+GtkAdapter >> enablementStatusOf: anObject [
+	| enabled | 
+	
+	enabled := anObject isEnabled.
+	
+	^ (enabled isBlock or: [ enabled isMessageSend ])
+		ifTrue: [ enabled cull: anObject ]
+		ifFalse: [ enabled ]
 ]
 
 { #category : #'as yet unclassified' }

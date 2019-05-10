@@ -28,7 +28,7 @@ GtkMenuItemAdapter >> addModelTo: gtkWidget [
 						addAccelerator: 'activate'
 						group: self shortcutGroup
 						shortcut: shortcut ] ].
-	gtkWidget sensitive: self model isEnabled.
+	gtkWidget sensitive: (self enablementStatusOf: self model).
 
 	"action"
 	self model action
