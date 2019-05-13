@@ -1,6 +1,6 @@
 Extension { #name : #TextColor }
 
-{ #category : #'*Mars-Tools' }
+{ #category : #'*Mars-Spec-Text' }
 TextColor >> acceptTag: aTag [
 
 	aTag foreground: self color

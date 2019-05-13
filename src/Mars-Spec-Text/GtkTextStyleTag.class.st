@@ -1,16 +1,16 @@
 Class {
-	#name : #StStyleTag,
+	#name : #GtkTextStyleTag,
 	#superclass : #Object,
 	#instVars : [
 		'name',
 		'start',
 		'stop'
 	],
-	#category : #'Mars-Tools'
+	#category : #'Mars-Spec-Text'
 }
 
 { #category : #'instance creation' }
-StStyleTag class >> newName: aString from: start to: stop [
+GtkTextStyleTag class >> newName: aString from: start to: stop [
 
 	^ self basicNew 
 		initializeName: aString from: start to: stop;
@@ -18,7 +18,7 @@ StStyleTag class >> newName: aString from: start to: stop [
 ]
 
 { #category : #visiting }
-StStyleTag >> acceptTextBuffer: textBuffer [
+GtkTextStyleTag >> acceptTextBuffer: textBuffer [
 
 	textBuffer 
 		applyTagByName: self name asString
@@ -27,7 +27,7 @@ StStyleTag >> acceptTextBuffer: textBuffer [
 ]
 
 { #category : #initialization }
-StStyleTag >> initializeName: aString from: startNumber to: stopNumber [
+GtkTextStyleTag >> initializeName: aString from: startNumber to: stopNumber [
 
 	self initialize.
 	name := aString.
@@ -36,25 +36,25 @@ StStyleTag >> initializeName: aString from: startNumber to: stopNumber [
 ]
 
 { #category : #accessing }
-StStyleTag >> name [
+GtkTextStyleTag >> name [
 
 	^ name
 ]
 
 { #category : #printing }
-StStyleTag >> printOn: aStream [ 
+GtkTextStyleTag >> printOn: aStream [ 
 	
 	aStream << self name << ' (' << self start asString << '-' << self stop asString << ')'
 ]
 
 { #category : #accessing }
-StStyleTag >> start [
+GtkTextStyleTag >> start [
 
 	^ start
 ]
 
 { #category : #accessing }
-StStyleTag >> stop [
+GtkTextStyleTag >> stop [
 
 	^ stop
 ]

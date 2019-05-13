@@ -40,7 +40,7 @@ GtkTextBuffer >> appendText: aString [
 		text: aString
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing tags' }
 GtkTextBuffer >> applyTagByName: aName start: start end: end [
 	| startIter endIter |
 	
@@ -61,10 +61,43 @@ GtkTextBuffer >> applyTagByName: name startIter: start endIter: end [
 		const GtkTextIter *end))
 ]
 
+{ #category : #converting }
+GtkTextBuffer >> asText [
+	| text pos iter atEnd |
+	
+	text := self text asText.
+	iter := self startIter.
+	pos := 1.
+	atEnd := false.
+	[ atEnd ] whileFalse: [ 
+		iter tags do: [ :eachTag |
+			eachTag asTextAttributeList do: [ :eachAttr | 
+				text addAttribute: eachAttr from: pos to: pos ] ].
+		pos := pos + 1.
+		atEnd := iter forwardChar not ].
+
+	^ text
+]
+
+{ #category : #private }
+GtkTextBuffer >> beginUserAction [
+	
+	self ffiCall: #(void gtk_text_buffer_begin_user_action (self))
+]
+
 { #category : #accessing }
 GtkTextBuffer >> charCount [
 
 	^ self ffiCall: #(gint gtk_text_buffer_get_char_count (self))
+]
+
+{ #category : #signals }
+GtkTextBuffer >> connectChanged: aBlock [ 
+
+	self 
+		connect: 'changed' 
+		signature: #(void (void *textBuffer, gpointer data))
+		do: [ :textBuffer :data | aBlock value ]
 ]
 
 { #category : #'accessing mark' }
@@ -75,6 +108,14 @@ GtkTextBuffer >> createMarkNamed: mark_name where: where leftGravity: left_gravi
 			const gchar *mark_name,
 			const GtkTextIter *where,
 			gboolean left_gravity))
+]
+
+{ #category : #accessing }
+GtkTextBuffer >> deleteAll [ 
+
+	self 
+		deleteStart: self startIter 
+		end: self endIter
 ]
 
 { #category : #private }
@@ -97,6 +138,12 @@ GtkTextBuffer >> endIter [
 GtkTextBuffer >> endIter: iter [
 
 	self ffiCall: #(void gtk_text_buffer_get_end_iter (self, GtkTextIter *iter))
+]
+
+{ #category : #private }
+GtkTextBuffer >> endUserAction [
+	
+	self ffiCall: #(void gtk_text_buffer_end_user_action (self))
 ]
 
 { #category : #private }
@@ -183,6 +230,23 @@ GtkTextBuffer >> offsetIter: iter pos: char_offset [
 	
 ]
 
+{ #category : #'accessing tags' }
+GtkTextBuffer >> removeAllTags [ 
+
+	self 
+		removeAllTagsFrom: self startIter 
+		to: self endIter
+]
+
+{ #category : #private }
+GtkTextBuffer >> removeAllTagsFrom: start to: end [
+
+	self ffiCall: #(void gtk_text_buffer_remove_all_tags (
+		self, 
+		const GtkTextIter *start, 
+		const GtkTextIter *end))
+]
+
 { #category : #private }
 GtkTextBuffer >> startIter [ 
 	| start |
@@ -223,4 +287,12 @@ GtkTextBuffer >> textStart: start end: end includeHiddenChars: include_hidden_ch
       const GtkTextIter *start,
       const GtkTextIter *end,
       gboolean include_hidden_chars))
+]
+
+{ #category : #accessing }
+GtkTextBuffer >> userActionDuring: aBlock [ 
+
+	self beginUserAction.
+	aBlock ensure: [ 
+		self endUserAction ]
 ]

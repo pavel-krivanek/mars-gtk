@@ -56,9 +56,30 @@ GtkTextIter class >> fieldsDesc [
 ]
 
 { #category : #accessing }
+GtkTextIter >> backwardChar [
+
+	^ self ffiCall: #(gboolean gtk_text_iter_backward_char (self))
+]
+
+{ #category : #accessing }
+GtkTextIter >> backwardChars: count [
+
+	^ self ffiCall: #(gboolean gtk_text_iter_backward_char (self, gint count))
+]
+
+{ #category : #accessing }
 GtkTextIter >> backwardLines: count [
 
 	^ self ffiCall: #(gboolean gtk_text_iter_backward_lines (self, gint count))
+]
+
+{ #category : #private }
+GtkTextIter >> basicTags [
+	"From Gtk3 documentation: Returns a list of tags that apply to iter , in ascending order of priority (highest-priority tags are last). The GtkTextTag in the list don’t have a reference added, BUT YOU HAVE TO FREE THE LIST ITSELF.
+	So, REMEMBER TO FREE THE LIST :)"
+
+	self flag: #TODO. "This should be GSList* but FFI is not answering correctly structures "
+	^ self ffiCall: #("GSList"void *gtk_text_iter_get_tags (self))
 ]
 
 { #category : #'accessing structure variables' }
@@ -230,7 +251,32 @@ GtkTextIter >> dummy9: anObject [
 ]
 
 { #category : #accessing }
+GtkTextIter >> forwardChar [
+
+	^ self ffiCall: #(gboolean gtk_text_iter_forward_char (self))
+]
+
+{ #category : #accessing }
+GtkTextIter >> forwardChars: count [
+
+	^ self ffiCall: #(gboolean gtk_text_iter_forward_chars (self, gint count))
+]
+
+{ #category : #accessing }
 GtkTextIter >> forwardLines: count [
 
 	^ self ffiCall: #(gboolean gtk_text_iter_forward_lines (self, gint count))
+]
+
+{ #category : #accessing }
+GtkTextIter >> tags [
+	| tagList tags |
+
+	tags := OrderedCollection new.
+	tagList := GSList fromHandle: self basicTags.
+	tagList do: [ :eachHandle |
+		tags add: (GtkTextTag fromHandle: eachHandle) ].
+	"list needs to be freed after using it (and autoReleasing is not working)"
+	tagList free.
+	^ tags asArray
 ]

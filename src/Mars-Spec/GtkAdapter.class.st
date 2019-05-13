@@ -54,8 +54,8 @@ GtkAdapter >> addSettingsTo: gtkWidget [
 	self presenter isVisible
 		ifTrue: [ gtkWidget show ]
 		ifFalse: [ gtkWidget hide ].
-	self presenter whenVisibleChangedDo: [ :value |
-		value
+	self presenter whenVisibleChangedDo: [ :aValuable |
+		aValuable value
 			ifTrue: [ gtkWidget show ]
 			ifFalse: [ gtkWidget hide ] ].
 ]
@@ -81,17 +81,17 @@ GtkAdapter >> buildWidget [
 { #category : #protocol }
 GtkAdapter >> doTakeKeyboardFocus [
 
-	self widgetDo: [ :w | 
-	self model window ifNotNil: [ :window | 
-		window adapter
-			ifNotNil: [ w grabFocus ]
-			ifNil: [ w deferAction: [ w grabFocus ] ] ] ]
+	self innerWidgetDo: [ :w | 
+		self model window ifNotNil: [ :window | 
+			window adapter
+				ifNotNil: [ w grabFocus ]
+				ifNil: [ w deferAction: [ w grabFocus ] ] ] ]
 ]
 
 { #category : #accessing }
 GtkAdapter >> enabled [
 
-	^ self widget sensitive
+	^ self innerWidget sensitive
 ]
 
 { #category : #accessing }
@@ -117,15 +117,57 @@ GtkAdapter >> gtInspectorPreviewIn: aGLMCompositePresentation [
 	"Do nothing at the moment"
 ]
 
+{ #category : #testing }
+GtkAdapter >> hasWidget [
+
+	^ widget notNil
+]
+
 { #category : #accessing }
 GtkAdapter >> helpText [
-	^ self widget tooltipText
+
+	^ self innerWidget tooltipText
+]
+
+{ #category : #'private accessing' }
+GtkAdapter >> innerWidget [
+	"this is the widget to be used internally (to operate). 
+	 this is because widgets can be wrapped and we need to use the actual widget to 
+	 config the adapter. 
+	 Most of the cases, this the same as #widget"
+	
+	^ widget
+]
+
+{ #category : #accessing }
+GtkAdapter >> innerWidgetDo: aBlock [
+
+	self hasWidget ifFalse: [ ^ nil ].
+	^ aBlock value: self innerWidget
 ]
 
 { #category : #visibility }
 GtkAdapter >> isVisible [
 	
-	^ widget isConfiguredVisible
+	^ self innerWidget isConfiguredVisible
+]
+
+{ #category : #emulating }
+GtkAdapter >> keyPressed: keyCode shift: shiftBoolean meta: metaBoolean control: controlBoolean option: optionBoolean [
+
+	self innerWidget 
+		withCallbacksOfType: GKeyPressEventCallback 
+		do: [ :aCallback | 
+			aCallback valueWithArguments: { 
+				self innerWidget getHandle. 
+				(GdkEventKey 
+					newKeyPressValue: keyCode
+					shift: shiftBoolean
+					meta: metaBoolean
+					control: controlBoolean
+					option: optionBoolean) 
+				getHandle.
+				ExternalAddress null } ]
 ]
 
 { #category : #protocol }
@@ -143,11 +185,11 @@ GtkAdapter >> newWidget [
 { #category : #emulating }
 GtkAdapter >> rightClicked [
 	
-	self widget 
+	self innerWidget 
 		withCallbacksOfType: GSecondaryButtonPressEventCallback 
 		do: [ :aCallback |
 			aCallback valueWithArguments: {
-				self widget getHandle.
+				self innerWidget getHandle.
 				GdkEventButton newRightClick getHandle.
 				ExternalAddress null } ]
 ]
@@ -155,7 +197,8 @@ GtkAdapter >> rightClicked [
 { #category : #accessing }
 GtkAdapter >> setBalloonText: aString [ 
 	
-	^ self widget ifNotNil: [ self widget tooltipText: aString ]
+	^ self innerWidget ifNotNil: [ 
+		self innerWidget tooltipText: aString ]
 ]
 
 { #category : #protocol }
@@ -177,22 +220,22 @@ GtkAdapter >> update: aSymbol with: anArray [
 GtkAdapter >> updateMenu [
 	| existingCallbacks menu |
 
-	self widget ifNil: [ ^ self ].
+	self hasWidget ifFalse: [ ^ self ].
 
 	existingCallbacks := Set new.
-	self widget 
+	self innerWidget 
 		withCallbacksOfType: GSecondaryButtonPressEventCallback 
 		do: [ :each | existingCallbacks add: each ].
 		
 	menu := self model contextMenu. 
 	menu ifNil: [ 
-		existingCallbacks do: [ :each | each disconnectFrom: self widget ].
+		existingCallbacks do: [ :each | each disconnectFrom: self innerWidget ].
 		^ self ].
 	"if there is already a callback, I do not need to do anything (because it will be 
 	 evaluated each time)"
 	existingCallbacks ifNotEmpty: [ ^ self ].
 	"Now, actually add the menu callback"
-	self addMenu: menu to: self widget
+	self addMenu: menu to: self innerWidget
 ]
 
 { #category : #building }
@@ -205,4 +248,12 @@ GtkAdapter >> widgetClass [
 GtkAdapter >> wrapWidget: gtkWidget [
 
 	^ gtkWidget
+]
+
+{ #category : #'private utils' }
+GtkAdapter >> wrapWithScrollableWindow: gtkWidget [
+
+	^ (GtkScrolledWindow newWidget: gtkWidget)
+		show;
+		yourself
 ]

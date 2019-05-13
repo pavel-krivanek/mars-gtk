@@ -49,6 +49,12 @@ GtkTextView >> beWrapWordChar [
 	self setWrapMode: GTK_WRAP_WORD_CHAR
 ]
 
+{ #category : #signaling }
+GtkTextView >> connectPopulatePopup: aBlock [
+
+	^ (GPopulatePopupCallback do: aBlock) connectTo: self
+]
+
 { #category : #accessing }
 GtkTextView >> cursorVisible: setting [
 

@@ -248,6 +248,26 @@ GObject >> gObjectGetDouble: aName [
 ]
 
 { #category : #'private primitives' }
+GObject >> gObjectGetHandle: aName [
+	| address |
+	
+	address := ExternalAddress new.
+	self gObjectGet: aName intoAddress: address.
+	^ address	
+			
+]
+
+{ #category : #'private primitives' }
+GObject >> gObjectGetHandle: aName as: aClass [
+	| address |
+
+	address := self gObjectGetHandle: aName.
+	address isNull ifTrue: [ ^ nil ].
+
+	^ aClass fromHandle: address
+]
+
+{ #category : #'private primitives' }
 GObject >> gObjectGetInteger: aName [
 	"a convenience method to read boolean properties"
 	| buffer |
@@ -317,8 +337,8 @@ GObject >> initialize [
 		"I retain a reference to ensure it is not destroyed until I actually want to doit."
 		self objectRef.
 		"emit signals to debug"
-		"GtkCreateSignal emitWidget: self.
-		GtkDestroySignal installFor: self"	]
+		GtkCreateSignal emitWidget: self.
+		GtkDestroySignal installFor: self	]
 ]
 
 { #category : #private }
@@ -378,14 +398,16 @@ GObject >> signal: aString connect: callback data: aData [
 
 { #category : #'private signaling' }
 GObject >> signal: signalName connect: callback data: aData flags: connectFlags [
-	
-	^ self ffiCall: #( gulong g_signal_connect_data ( 
-		self,
-		const gchar *signalName,
-		GCallback callback,
-		gpointer 	aData,
-		0,
-		GConnectFlags connectFlags ) ) module: GObjectLibrary
+
+	^ self 
+		ffiCall: #( gulong g_signal_connect_data ( 
+			self,
+			const gchar *signalName,
+			GCallback callback,
+			gpointer 	aData,
+			NULL,
+			GConnectFlags connectFlags ) ) 
+		module: GObjectLibrary
 ]
 
 { #category : #'private signaling' }

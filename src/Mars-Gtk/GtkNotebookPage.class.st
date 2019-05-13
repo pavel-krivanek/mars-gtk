@@ -14,7 +14,8 @@ Class {
 		'data'
 	],
 	#pools : [
-		'GtkOrientation'
+		'GtkOrientation',
+		'GtkTypes'
 	],
 	#category : #'Mars-Gtk-Widget-Container'
 }
@@ -76,7 +77,7 @@ GtkNotebookPage >> notebook [
 { #category : #accessing }
 GtkNotebookPage >> select [ 
 
-	self select: (self notebook children indexOf: self)
+	self select: self zIndex
 ]
 
 { #category : #private }
@@ -110,4 +111,12 @@ GtkNotebookPage >> withAllChildrenDo: aBlock [
 	
 	aBlock cull: self label.
 	aBlock cull: self content
+]
+
+{ #category : #accessing }
+GtkNotebookPage >> zIndex [
+	"the index of this page in the notebook.
+	 This is zero based"
+
+	^ (self notebook children indexOf: self) - 1
 ]

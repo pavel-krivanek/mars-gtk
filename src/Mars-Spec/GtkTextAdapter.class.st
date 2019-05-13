@@ -1,33 +1,29 @@
 Class {
 	#name : #GtkTextAdapter,
 	#superclass : #GtkAbstractTextAdapter,
+	#traits : 'TGtkHaveWrappingScrollBars',
+	#classTraits : 'TGtkHaveWrappingScrollBars classTrait',
 	#category : #'Mars-Spec-Adapter'
 }
 
 { #category : #visiting }
 GtkTextAdapter >> accept [
 
-	self widgetDo: [ :w | 
-		self model acceptText: w child text ]
+	self innerWidgetDo: [ :w | 
+		self model acceptText: w text ]
 ]
 
-{ #category : #visiting }
+{ #category : #building }
 GtkTextAdapter >> addModelTo: gtkTextView [
 
 	super addModelTo: gtkTextView.
-	gtkTextView beWrapWord
+	gtkTextView beWrapWord.
+	gtkTextView connectKeyPressEvent: [ :event |
+		self handleKeyEvent: event ]
 ]
 
 { #category : #building }
 GtkTextAdapter >> widgetClass [
 
 	^ GtkTextView
-]
-
-{ #category : #building }
-GtkTextAdapter >> wrapWidget: gtkWidget [
-
-	^ (GtkScrolledWindow newWidget: gtkWidget) 
-		show;
-		yourself
 ]

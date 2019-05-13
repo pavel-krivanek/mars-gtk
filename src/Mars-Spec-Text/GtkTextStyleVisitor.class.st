@@ -1,57 +1,59 @@
 Class {
-	#name : #StStyleVisitor,
+	#name : #GtkTextStyleVisitor,
 	#superclass : #Object,
+	#traits : 'TRBProgramNodeVisitor',
+	#classTraits : 'TRBProgramNodeVisitor classTrait',
 	#instVars : [
 		'parentheseLevel',
 		'bracketLevel',
 		'contextClass',
 		'tags'
 	],
-	#category : #'Mars-Tools'
+	#category : #'Mars-Spec-Text'
 }
 
 { #category : #private }
-StStyleVisitor >> addStyle: style from: start to: end [ 
+GtkTextStyleVisitor >> addStyle: style from: start to: end [ 
 	
-	tags add: (StStyleTag newName: style from: start to: end)
+	tags add: (GtkTextStyleTag newName: style from: start to: end)
 ]
 
 { #category : #accessing }
-StStyleVisitor >> contextClass: aClass [
+GtkTextStyleVisitor >> contextClass: aClass [
 
 	contextClass := aClass
 ]
 
 { #category : #private }
-StStyleVisitor >> currentClosedBracketStyleName [
+GtkTextStyleVisitor >> currentClosedBracketStyleName [
 	
 	bracketLevel isZero ifTrue: [ ^ #blockEnd ].
 	^ (#blockEnd asString, bracketLevel asString) asSymbol
 ]
 
 { #category : #private }
-StStyleVisitor >> currentClosedParenthesisStyleName [
+GtkTextStyleVisitor >> currentClosedParenthesisStyleName [
 
 	parentheseLevel isZero ifTrue: [ ^ #rightParenthesis ].
 	^ (#rightParenthesis asString, parentheseLevel asString) asSymbol
 ]
 
 { #category : #private }
-StStyleVisitor >> currentOpenedBracketStyleName [
+GtkTextStyleVisitor >> currentOpenedBracketStyleName [
 
 	bracketLevel isZero ifTrue: [ ^ #blockStart ].
 	^ (#blockStart asString, bracketLevel asString) asSymbol
 ]
 
 { #category : #private }
-StStyleVisitor >> currentOpenedParenthesisStyleName [
+GtkTextStyleVisitor >> currentOpenedParenthesisStyleName [
 
 	parentheseLevel isZero ifTrue: [ ^ #leftParenthesis ].
 	^ (#leftParenthesis asString, parentheseLevel asString) asSymbol
 ]
 
 { #category : #private }
-StStyleVisitor >> literalStyleSymbol: aValue [
+GtkTextStyleVisitor >> literalStyleSymbol: aValue [
 
 	aValue isSymbol 		ifTrue: [ ^ #symbol ].
 	aValue isString 		ifTrue: [ ^ #string ].
@@ -65,7 +67,7 @@ StStyleVisitor >> literalStyleSymbol: aValue [
 ]
 
 { #category : #private }
-StStyleVisitor >> methodOrBlockArgStyleFor: aRBArgumentNode [ 
+GtkTextStyleVisitor >> methodOrBlockArgStyleFor: aRBArgumentNode [ 
 	
 	^ aRBArgumentNode isBlockVar
 		ifTrue: [ #blockArg ]
@@ -73,7 +75,7 @@ StStyleVisitor >> methodOrBlockArgStyleFor: aRBArgumentNode [
 ]
 
 { #category : #private }
-StStyleVisitor >> methodOrBlockTempDeclStyleFor: aSequenceNode [
+GtkTextStyleVisitor >> methodOrBlockTempDeclStyleFor: aSequenceNode [
 	
 	^ aSequenceNode scope isBlockScope
 		ifTrue: [ #blockPatternTempVar ]
@@ -81,7 +83,7 @@ StStyleVisitor >> methodOrBlockTempDeclStyleFor: aSequenceNode [
 ]
 
 { #category : #private }
-StStyleVisitor >> methodOrBlockTempStyleFor: aRBTemporaryNode [ 
+GtkTextStyleVisitor >> methodOrBlockTempStyleFor: aRBTemporaryNode [ 
 	
 	^ aRBTemporaryNode isBlockVar
 		ifTrue: [ #blockTempVar ]
@@ -89,7 +91,7 @@ StStyleVisitor >> methodOrBlockTempStyleFor: aRBTemporaryNode [
 ]
 
 { #category : #private }
-StStyleVisitor >> reset [
+GtkTextStyleVisitor >> reset [
 	
 	tags := OrderedCollection new.
 	parentheseLevel := 0.
@@ -97,7 +99,7 @@ StStyleVisitor >> reset [
 ]
 
 { #category : #private }
-StStyleVisitor >> resolveStyleFor: aRBVariableNode [ 
+GtkTextStyleVisitor >> resolveStyleFor: aRBVariableNode [ 
 
 	aRBVariableNode binding ifNil: [^#default].
 	aRBVariableNode isArg ifTrue: [ ^#methodArg].
@@ -109,72 +111,8 @@ StStyleVisitor >> resolveStyleFor: aRBVariableNode [
 	^#invalid.
 ]
 
-{ #category : #private }
-StStyleVisitor >> styleCloseBracket: aRBBlockNode [ 
-	
-	bracketLevel := bracketLevel - 1.
-	(aRBBlockNode right isZero or: [ aRBBlockNode value isNil ]) ifTrue:[ ^ self ].
-	self 
-		addStyle: self currentClosedBracketStyleName 
-		from: aRBBlockNode right 
-		to: aRBBlockNode right
-]
-
-{ #category : #private }
-StStyleVisitor >> styleCloseParenthese: aMessageNode [
-	
-	aMessageNode parentheses ifNotEmpty: [ 
-		aMessageNode parentheses reverseDo: [ :interval | 
-			| pos |
-			pos := interval last.
-			parentheseLevel := parentheseLevel - 1.
-			self addStyle: self currentClosedParenthesisStyleName from: pos to: pos ] ]
-]
-
-{ #category : #private }
-StStyleVisitor >> styleOpenBracket: aRBBlockNode [
-	| style |
-
-	style := aRBBlockNode isFaulty
-		ifTrue: [ #invalid ]
-		ifFalse: [ self currentOpenedBracketStyleName ].
-	self addStyle: style from: aRBBlockNode left to: aRBBlockNode left.
-	bracketLevel := bracketLevel + 1
-]
-
-{ #category : #private }
-StStyleVisitor >> styleOpenParenthese: aMessageNode [
-	
-	aMessageNode parentheses ifNotEmpty: [ 
-		aMessageNode parentheses
-			do: [ :interval | 
-				| pos |
-				pos := interval first.
-				self addStyle:  self currentOpenedParenthesisStyleName from: pos to: pos.
-				parentheseLevel := parentheseLevel + 1 ] ]
-]
-
-{ #category : #private }
-StStyleVisitor >> styleTempBars: aRBSequenceNode [ 
-	| tempBarAttribute |
-
-	tempBarAttribute := aRBSequenceNode scope isMethodScope
-		ifTrue: [ #methodTempBar ]
-		ifFalse: [ #blockTempBar ].
-	aRBSequenceNode leftBar ifNotNil: [ :pos | 
-		self addStyle: tempBarAttribute from: pos to: pos ].
-	aRBSequenceNode rightBar ifNotNil: [ :pos | 
-		self addStyle: tempBarAttribute from: pos to: pos ]
-]
-
-{ #category : #accessing }
-StStyleVisitor >> tags [
-
-	^ tags
-]
-
-{ #category : #'private visiting' }
-StStyleVisitor >> visitAST: ast [
+{ #category : #styling }
+GtkTextStyleVisitor >> styleAST: ast [
 	| context |
 
 	self reset.
@@ -189,8 +127,89 @@ StStyleVisitor >> visitAST: ast [
 	ast acceptVisitor: self
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitArgumentNode: aRBArgumentNode [ 
+{ #category : #private }
+GtkTextStyleVisitor >> styleCloseBracket: aRBBlockNode [ 
+	
+	bracketLevel := bracketLevel - 1.
+	(aRBBlockNode right isZero or: [ aRBBlockNode value isNil ]) ifTrue:[ ^ self ].
+	self 
+		addStyle: self currentClosedBracketStyleName 
+		from: aRBBlockNode right 
+		to: aRBBlockNode right
+]
+
+{ #category : #private }
+GtkTextStyleVisitor >> styleCloseParenthese: aMessageNode [
+	
+	aMessageNode parentheses ifNotEmpty: [ 
+		aMessageNode parentheses reverseDo: [ :interval | 
+			| pos |
+			pos := interval last.
+			parentheseLevel := parentheseLevel - 1.
+			self addStyle: self currentClosedParenthesisStyleName from: pos to: pos ] ]
+]
+
+{ #category : #styling }
+GtkTextStyleVisitor >> styleExpression: aString [
+
+	self styleAST: (RBParser parseFaultyExpression: aString).
+	^ self tags
+]
+
+{ #category : #styling }
+GtkTextStyleVisitor >> styleMethod: aString [
+	| ast |
+
+	ast := RBParser parseFaultyMethod: aString.
+	ast isParseError ifTrue: [ ^ self styleExpression: aString ].
+	self styleAST: ast.
+	^ self tags
+]
+
+{ #category : #private }
+GtkTextStyleVisitor >> styleOpenBracket: aRBBlockNode [
+	| style |
+
+	style := aRBBlockNode isFaulty
+		ifTrue: [ #invalid ]
+		ifFalse: [ self currentOpenedBracketStyleName ].
+	self addStyle: style from: aRBBlockNode left to: aRBBlockNode left.
+	bracketLevel := bracketLevel + 1
+]
+
+{ #category : #private }
+GtkTextStyleVisitor >> styleOpenParenthese: aMessageNode [
+	
+	aMessageNode parentheses ifNotEmpty: [ 
+		aMessageNode parentheses
+			do: [ :interval | 
+				| pos |
+				pos := interval first.
+				self addStyle:  self currentOpenedParenthesisStyleName from: pos to: pos.
+				parentheseLevel := parentheseLevel + 1 ] ]
+]
+
+{ #category : #private }
+GtkTextStyleVisitor >> styleTempBars: aRBSequenceNode [ 
+	| tempBarAttribute |
+
+	tempBarAttribute := aRBSequenceNode scope isMethodScope
+		ifTrue: [ #methodTempBar ]
+		ifFalse: [ #blockTempBar ].
+	aRBSequenceNode leftBar ifNotNil: [ :pos | 
+		self addStyle: tempBarAttribute from: pos to: pos ].
+	aRBSequenceNode rightBar ifNotNil: [ :pos | 
+		self addStyle: tempBarAttribute from: pos to: pos ]
+]
+
+{ #category : #accessing }
+GtkTextStyleVisitor >> tags [
+
+	^ tags
+]
+
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitArgumentNode: aRBArgumentNode [ 
 	| blockOrMethodArgStyle |
 	
 	blockOrMethodArgStyle := self methodOrBlockArgStyleFor: aRBArgumentNode.
@@ -200,8 +219,14 @@ StStyleVisitor >> visitArgumentNode: aRBArgumentNode [
 		to: aRBArgumentNode stop
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitAssignmentNode: aRBAssignmentNode [
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitArrayNode: anArrayNode [ 
+
+	anArrayNode children do: [ :each | self visitNode: each ]
+]
+
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitAssignmentNode: aRBAssignmentNode [
 
 	self visitNode: aRBAssignmentNode variable.
 	self visitNode: aRBAssignmentNode value.
@@ -209,8 +234,8 @@ StStyleVisitor >> visitAssignmentNode: aRBAssignmentNode [
 		ifFalse: [ self addStyle: #invalid forNode: aRBAssignmentNode ]
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitBlockNode: aRBBlockNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitBlockNode: aRBBlockNode [ 
 
 	aRBBlockNode comments do: [ :comment | self addStyle: #comment from: comment start to: comment stop ].
 	aRBBlockNode arguments do: [ :argument | self addStyle: #blockPatternArg from: argument start to: argument stop ].
@@ -222,31 +247,24 @@ StStyleVisitor >> visitBlockNode: aRBBlockNode [
 	self styleCloseBracket: aRBBlockNode
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitCascadeNode: aRBCascadeNode [
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitCascadeNode: aRBCascadeNode [
 
 	aRBCascadeNode messages do: [ :each | self visitNode: each ].
 	aRBCascadeNode semicolons do: [ :pos | self addStyle: #cascadeSeparator from: pos to: pos ]
 ]
 
 { #category : #visiting }
-StStyleVisitor >> visitExpression: aString [
-
-	self visitAST: (RBParser parseFaultyExpression: aString).
-	^ self tags
-]
-
-{ #category : #'private visiting' }
-StStyleVisitor >> visitGlobalNode: aRBGlobalNode [
+GtkTextStyleVisitor >> visitGlobalNode: aRBGlobalNode [
 
 	self 
-		addStyle: #global 
+		addStyle: #globalVar
 		from: aRBGlobalNode start 
 		to: aRBGlobalNode stop
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitLiteralArrayNode: aRBLiteralArrayNode [
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitLiteralArrayNode: aRBLiteralArrayNode [
 	"in a (valid) byte array all elements are of the same type, style the whole 
 	 contents at once, but for ordinary literal arrays, style every node"
 
@@ -261,8 +279,8 @@ StStyleVisitor >> visitLiteralArrayNode: aRBLiteralArrayNode [
 			aRBLiteralArrayNode contents do: [ :each | self visitNode: each ] ]
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitLiteralNode: aRBLiteralValueNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitLiteralNode: aRBLiteralValueNode [ 
 	| value |
 	
 	value := aRBLiteralValueNode value.
@@ -272,8 +290,8 @@ StStyleVisitor >> visitLiteralNode: aRBLiteralValueNode [
 		to: aRBLiteralValueNode stop
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitMessageNode: aRBMessageNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitMessageNode: aRBMessageNode [ 
 	| style link |
 	
 	style := #keyword.
@@ -298,22 +316,15 @@ StStyleVisitor >> visitMessageNode: aRBMessageNode [
 ]
 
 { #category : #visiting }
-StStyleVisitor >> visitMethod: aString [
-
-	self visitAST: (RBParser parseFaultyMethod: aString).
-	^ self tags
-]
-
-{ #category : #'private visiting' }
-StStyleVisitor >> visitMethodComments: comments [
+GtkTextStyleVisitor >> visitMethodComments: comments [
 
 	comments do: [ :comment | self addStyle: #comment from: comment start to: comment stop ].
 	"PharoDocCommentNode docCommentEnabled
 		ifTrue: [ comments do: [ :comment | self styleDocComment: comment ] ]"
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitMethodNode: aRBMethodNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitMethodNode: aRBMethodNode [ 
 	
 	self visitMethodComments: aRBMethodNode comments.
 	
@@ -331,8 +342,8 @@ StStyleVisitor >> visitMethodNode: aRBMethodNode [
 	self visitNode: aRBMethodNode body
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitNode: aRBNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitNode: aRBNode [ 
 	
 	aRBNode comments do: [ :comment |
 		self 
@@ -343,8 +354,8 @@ StStyleVisitor >> visitNode: aRBNode [
 	^ aRBNode acceptVisitor: self
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitParseErrorNode: aRBParseErrorNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitParseErrorNode: aRBParseErrorNode [ 
 	
 	self 
 		addStyle: #invalid
@@ -352,8 +363,8 @@ StStyleVisitor >> visitParseErrorNode: aRBParseErrorNode [
 		to: aRBParseErrorNode  stop
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitPragmaNode: aRBPragmaNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitPragmaNode: aRBPragmaNode [ 
 
 	aRBPragmaNode selectorParts 
 		with: aRBPragmaNode keywordsPositions 
@@ -366,8 +377,8 @@ StStyleVisitor >> visitPragmaNode: aRBPragmaNode [
 	aRBPragmaNode arguments do: [ :each | self visitNode: each ]	
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitReturnNode: aRBReturnNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitReturnNode: aRBReturnNode [ 
 	
 	self 
 		addStyle: #return
@@ -377,8 +388,8 @@ StStyleVisitor >> visitReturnNode: aRBReturnNode [
 	self visitNode: aRBReturnNode value
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitSelfNode: aRBSelfNode [
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitSelfNode: aRBSelfNode [
 	
 	self 
 		addStyle: #self
@@ -386,8 +397,8 @@ StStyleVisitor >> visitSelfNode: aRBSelfNode [
 		to: aRBSelfNode stop
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitSequenceNode: aRBSequenceNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitSequenceNode: aRBSequenceNode [ 
 	| patternTempStyle |
 	
 	patternTempStyle := self methodOrBlockTempDeclStyleFor: aRBSequenceNode.
@@ -405,8 +416,8 @@ StStyleVisitor >> visitSequenceNode: aRBSequenceNode [
 			to: pos ]
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitSuperNode: aRBSuperNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitSuperNode: aRBSuperNode [ 
 
 	self 
 		addStyle: #super 
@@ -414,8 +425,8 @@ StStyleVisitor >> visitSuperNode: aRBSuperNode [
 		to: aRBSuperNode stop
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitTemporaryNode: aRBTemporaryNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitTemporaryNode: aRBTemporaryNode [ 
 	| methodOrBlockTempStyle |
 		
 	methodOrBlockTempStyle := self methodOrBlockTempStyleFor: aRBTemporaryNode.
@@ -425,8 +436,17 @@ StStyleVisitor >> visitTemporaryNode: aRBTemporaryNode [
 		to: aRBTemporaryNode stop
 ]
 
-{ #category : #'private visiting' }
-StStyleVisitor >> visitVariableNode: aRBVariableNode [ 
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitThisContextNode: aThisContextNode [ 
+	
+	self 
+		addStyle: #thisContext 
+		from: aThisContextNode start 
+		to: aThisContextNode stop
+]
+
+{ #category : #visiting }
+GtkTextStyleVisitor >> visitVariableNode: aRBVariableNode [ 
 	
 	self 
 		addStyle: (self resolveStyleFor: aRBVariableNode) 

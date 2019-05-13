@@ -1,6 +1,8 @@
 Class {
 	#name : #GtkBaseListAdapter,
 	#superclass : #GtkAbstractListAdapter,
+	#traits : 'TGtkHaveWrappingScrollBars',
+	#classTraits : 'TGtkHaveWrappingScrollBars classTrait',
 	#category : #'Mars-Spec-Adapter-List'
 }
 

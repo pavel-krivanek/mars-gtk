@@ -1,5 +1,5 @@
 Extension { #name : #TextAttribute }
 
-{ #category : #'*Mars-Tools' }
+{ #category : #'*Mars-Spec-Text' }
 TextAttribute >> acceptTag: aTag [
 ]

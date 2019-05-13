@@ -1,14 +1,14 @@
 Class {
-	#name : #StStyleVisitorTest,
+	#name : #GtkTextStyleVisitorTest,
 	#superclass : #TestCase,
 	#instVars : [
 		'visitor'
 	],
-	#category : #'Mars-Tools'
+	#category : #'Mars-GtkBackendTests'
 }
 
 { #category : #accessing }
-StStyleVisitorTest class >> syntaxInAPostcard [
+GtkTextStyleVisitorTest class >> syntaxInAPostcard [
 
 	^ 'exampleWithNumber: x
 
@@ -32,17 +32,24 @@ return and cascade. It has both zero argument and one argument blocks."
 ]
 
 { #category : #running }
-StStyleVisitorTest >> setUp [
+GtkTextStyleVisitorTest >> setUp [
 	
 	super setUp.
-	visitor := StStyleVisitor new
+	visitor := GtkTextStyleVisitor new
 ]
 
 { #category : #tests }
-StStyleVisitorTest >> testVisitMethod [
+GtkTextStyleVisitorTest >> testStyleMethod [
 	| tags |
 
+	"smoke test"
+	visitor 
+		contextClass: Object;
+		styleMethod: self class syntaxInAPostcard.
+	"basic test"
 	tags := visitor 
 		contextClass: Object;
-		visitMethod: self class syntaxInAPostcard
+		styleMethod: 'self asString'.
+	
+	self assert: tags size equals: 2
 ]

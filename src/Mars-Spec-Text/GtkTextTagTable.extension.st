@@ -1,6 +1,6 @@
 Extension { #name : #GtkTextTagTable }
 
-{ #category : #'*Mars-Tools' }
+{ #category : #'*Mars-Spec-Text' }
 GtkTextTagTable class >> newForCode [
 	| table |
 	
