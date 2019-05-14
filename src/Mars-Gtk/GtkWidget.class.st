@@ -213,6 +213,15 @@ GtkWidget >> connectKeyPressEvent: aBlock [
 ]
 
 { #category : #signaling }
+GtkWidget >> connectMotionNotify: aBlock [
+	"connects to motion_notify_event signal.
+	 aBlock needs to answer a boolean to stop or not event propagation"
+
+	^ (GMotionNotifyEventCallback do: aBlock) connectTo: self
+
+]
+
+{ #category : #signaling }
 GtkWidget >> connectRightClicked: aBlock [
 	"connect to button-press-event signal but evaluates if this is 'secondary button', 
 	 which is right click.

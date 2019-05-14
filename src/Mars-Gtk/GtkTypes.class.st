@@ -11,6 +11,7 @@ Class {
 		'gchar',
 		'gdouble',
 		'gint',
+		'gint16',
 		'gint8',
 		'gpointer',
 		'gsize',
@@ -42,6 +43,7 @@ GtkTypes class >> initialize [
 	GType := #gsize.
 	gssize := #long.
 	gsize := #ulong.
+	gint16 := #int16.
 	
 	gunichar := #guint32.
 ]
