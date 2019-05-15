@@ -231,6 +231,15 @@ GtkWidget >> connectRightClicked: aBlock [
 ]
 
 { #category : #signaling }
+GtkWidget >> connectScroll: aBlock [
+	"connects to scroll_event signal.
+	 aBlock needs to answer a boolean to stop or not event propagation"
+
+	^ (GScrollEventCallback do: aBlock) connectTo: self
+
+]
+
+{ #category : #signaling }
 GtkWidget >> connectShow: aBlock [
 	self connect: 'show' do: aBlock
 ]
