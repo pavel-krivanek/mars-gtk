@@ -76,6 +76,12 @@ GdkEventCrossing >> mode: anObject [
 	handle unsignedLongAt: OFFSET_MODE put: anObject value
 ]
 
+{ #category : #accessing }
+GdkEventCrossing >> position [
+
+	^ self x @ self y
+]
+
 { #category : #'accessing structure variables' }
 GdkEventCrossing >> send_event [
 	"This method was automatically generated"
