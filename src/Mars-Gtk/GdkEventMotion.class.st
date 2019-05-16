@@ -74,6 +74,12 @@ GdkEventMotion >> is_hint: anObject [
 	handle signedShortAt: OFFSET_IS_HINT put: anObject
 ]
 
+{ #category : #accessing }
+GdkEventMotion >> position [
+
+	^ self x @ self y
+]
+
 { #category : #'accessing structure variables' }
 GdkEventMotion >> send_event [
 	"This method was automatically generated"
