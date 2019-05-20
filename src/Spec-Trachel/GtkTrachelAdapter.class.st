@@ -7,7 +7,9 @@ Class {
 		'anyButtonPressed',
 		'eventBeginingDragging',
 		'shapeBeingPointed',
-		'shapeUnderDrag'
+		'shapeUnderDrag',
+		'lastButton',
+		'clickEventClone'
 	],
 	#pools : [
 		'GdkEventMask'
@@ -33,6 +35,7 @@ GtkTrachelAdapter >> addModelTo: gtkWidget [
 "	widget connectKeyPressEvent:  [ :event | self inform: event type asString ].
 "	
 	widget connectButtonPressEvent:  [ :event | self mouseDown: event. true ].
+	widget connectButtonReleaseEvent:  [ :event | self mouseUp: event. true ].
 	widget connectButtonReleaseEvent:  [ :event | true ].
 	widget connectMotionNotify: [ :event | self mouseMove: event. true ].
 	widget connectEnterNotify: [ :event | self mouseEnter: event. true ].
@@ -41,8 +44,8 @@ GtkTrachelAdapter >> addModelTo: gtkWidget [
 	
 "	widget connectMotionNotify: [ :arg | self inform: arg x asString. false ].
 "	widget connectScroll: [ :arg | self inform: arg y asString. false ].
-	widget connect: 'button_press_event' do: [ #down logCr ].	
-"	widget connect: 'button_release_event' do: [ #up logCr ].
+"	widget connect: 'button_press_event' do: [ #down logCr ].	
+	widget connect: 'button_release_event' do: [ #up logCr ].
 	widget connect: 'key_press_event' do: [ #keyPress logCr ].
 	widget connect: 'key_release_event' do: [ #keyRelease logCr ].
 	widget connect: 'key_press_event' do: [ #keyPress logCr ].
@@ -149,10 +152,16 @@ GtkTrachelAdapter >> mouseDown: evt [
 
 	anyButtonPressed := true.
 	
+	clickEventClone := GdkEventButtonClone from: evt.
+	
+	"TRMouseLeftClick"
+	
 "	self inform: 'evt: ', (evt position) asString.
 	self inform: 'point: ', (self relativePositionFor: evt) asString.
 "	
-	self trMouseDragStart: evt.	
+"	self trMouseDragStart: evt.	
+"
+
 
 "	eventBeginingDragging
 		ifNil:
@@ -176,6 +185,17 @@ GtkTrachelAdapter >> mouseEnter: evt [
 ]
 
 { #category : #accessing }
+GtkTrachelAdapter >> mouseEventOfClass: defaultClass ifLeftButton: leftButtonClass ifRightButton: rightButtonClass from: aMorphicEvent [
+	| trEventClass |
+	trEventClass := defaultClass.
+	aMorphicEvent redButtonChanged
+		ifTrue: [ trEventClass := leftButtonClass ].
+	aMorphicEvent yellowButtonChanged
+		ifTrue: [ trEventClass := rightButtonClass ].
+	^ self eventOfClass: trEventClass actionClass: defaultClass from: aMorphicEvent
+]
+
+{ #category : #accessing }
 GtkTrachelAdapter >> mouseLeave: evt [
 	anyButtonPressed
 		ifFalse: [ self trMouseLeave: evt ].
@@ -185,20 +205,38 @@ GtkTrachelAdapter >> mouseLeave: evt [
 { #category : #accessing }
 GtkTrachelAdapter >> mouseMove: evt [
 
-	anyButtonPressed
-		ifTrue: [ self trMouseDragging: evt ]
-		ifFalse: [ self trMouseMove: evt ].
+	clickEventClone ifNil: [ 
+		anyButtonPressed
+			ifTrue: [ 
+				self trMouseDragging: evt ]
+			ifFalse: [ self trMouseMove: evt ].
+		"emulate mouse over"
+		self handleMouseOver: evt].
+
+	(clickEventClone notNil and: [ (evt position distanceTo: clickEventClone position) > 5 ])
+		ifTrue: [ 
+			clickEventClone position logCr.
+			clickEventClone button logCr.
+			self trMouseDragStart: clickEventClone.
+			clickEventClone := nil.
+ ].
+				
+
 		
-	"emulate mouse over"
-		
-	self handleMouseOver: evt
+
 ]
 
 { #category : #accessing }
 GtkTrachelAdapter >> mouseUp: evt [
+
+	clickEventClone := nil.
+
 	self isDragging
-		ifTrue: [ self trMouseDragEnd: evt ].
-	evt wasHandled: true
+		ifTrue: [ 
+			self trMouseDragEnd: evt ]
+		ifFalse: [ 
+			self trMouseClick: evt ]
+
 ]
 
 { #category : #accessing }
@@ -238,6 +276,32 @@ GtkTrachelAdapter >> shapeWithAction: eventClass forPositionInPixels: position u
 GtkTrachelAdapter >> shapeWithActionForPositionInPixels: point [
 	"Return the shape with event handler located that contains point"
 	 ^ trachelCanvas shapeWithActionForPositionInPixels: point
+]
+
+{ #category : #accessing }
+GtkTrachelAdapter >> trMouseClick: aMorphicEvent [
+	| trEvent evtClass |
+
+	evtClass := TRMouseClick.
+	aMorphicEvent isPrimaryButton ifTrue: [ 
+		lastButton := #left.
+		evtClass := TRMouseLeftClick ].
+	aMorphicEvent isSecondaryButton ifTrue: [ 
+		lastButton := #right.		
+		evtClass := TRMouseRightClick ].
+	aMorphicEvent isDoubleClick ifTrue: [ 
+		lastButton = #left ifTrue: [ evtClass := TRMouseDoubleLeftClick ].
+		lastButton = #right ifTrue: [ evtClass := TRMouseDoubleRightClick ]  ].
+
+	trEvent := self eventOfClass: evtClass actionClass: TRMouseClick from: aMorphicEvent.
+"	trEvent := self
+		mouseEventOfClass: TRMouseClick
+		ifLeftButton: TRMouseLeftClick
+		ifRightButton: TRMouseRightClick
+		from: aMorphicEvent."
+	trEvent position: (trachelCanvas camera fromPixelToSpace: trEvent position).
+	trEvent shape announce: trEvent.
+	self announceToEventOverseer: trEvent
 ]
 
 { #category : #accessing }

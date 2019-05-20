@@ -41,38 +41,20 @@ GtkTrachel >> draw: cr [
 { #category : #drawing }
 GtkTrachel >> drawOnAthensCanvas: aCanvas [
 
-	| s |
-	s := aCanvas surface createPath: [:builder |
-				builder
-			absolute;
-			moveTo:  0 @ 0;
-			lineTo: 250 @ 0;
-			lineTo: 250 @ 250;
-			lineTo: 0 @ 250		
-		].
-	
-"	self inform: 'camera: ', trachelCanvas camera position asString ."
-"	self inform: 'size: ', (((self size)) / 2) asFloatPoint asString .
-""	self inform: 'size: ', aCanvas surface extent  asString ."
-	
-	aCanvas	
-		setPaint: Color white;
-		drawShape: s.	
+	"We display the elements that are subject to the camera"
+	aCanvas pathTransform
+			translateBy: (((aCanvas surface extent)) / 2) asFloatPoint;
+		    scaleBy: trachelCanvas camera scale asFloat;
+		translateBy: trachelCanvas camera position negated asFloatPoint.
+	trachelCanvas shapesDo: [ :trachelShape |
+		trachelShape isMarkedAsVisible ifTrue: [ trachelShape drawOn: aCanvas ].
+	].
 
-		"We display the elements that are subject to the camera"
-		aCanvas pathTransform
-				translateBy: (((aCanvas surface extent)) / 2) asFloatPoint;
-			    scaleBy: trachelCanvas camera scale asFloat;
-			translateBy: trachelCanvas camera position negated asFloatPoint.
-		trachelCanvas shapesDo: [ :trachelShape |
-			trachelShape isMarkedAsVisible ifTrue: [ trachelShape drawOn: aCanvas ].
-		].
-	
-		"We display the elements that are _NOT_ subject to the camera"
-		aCanvas pathTransform loadIdentity scaleBy: 1.001.
-		trachelCanvas fixedShapesDo: [ :trachelShape |
-			trachelShape isMarkedAsVisible ifTrue: [ trachelShape drawOn: aCanvas ].
-		].
+	"We display the elements that are _NOT_ subject to the camera"
+	aCanvas pathTransform loadIdentity scaleBy: 1.001.
+	trachelCanvas fixedShapesDo: [ :trachelShape |
+		trachelShape isMarkedAsVisible ifTrue: [ trachelShape drawOn: aCanvas ].
+	].
 
 
 ]
