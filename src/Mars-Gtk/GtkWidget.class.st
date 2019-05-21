@@ -262,6 +262,7 @@ GtkWidget >> connectMotionNotify: aBlock [
 	 aBlock needs to answer a boolean to stop or not event propagation"
 
 	^ (GMotionNotifyEventCallback do: aBlock) connectTo: self
+]
 
 GtkWidget >> connectRealize: aBlock [
 
