@@ -152,7 +152,7 @@ GtkTrachelAdapter >> mouseDown: evt [
 
 	anyButtonPressed := true.
 	
-	clickEventClone := GdkEventButtonClone from: evt.
+	clickEventClone := evt copyInMemory.
 	
 	"TRMouseLeftClick"
 	
