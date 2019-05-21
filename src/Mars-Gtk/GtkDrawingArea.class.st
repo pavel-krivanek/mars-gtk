@@ -10,6 +10,9 @@ Class {
 		'drawing',
 		'requestedSize'
 	],
+	#pools : [
+		'GdkEventMask'
+	],
 	#category : #'Mars-Gtk-Widget'
 }
 
@@ -24,7 +27,7 @@ GtkDrawingArea class >> new [
 	^ self drawingAreaNew initialize
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 GtkDrawingArea >> appPaintable: app_paintable [
 
 	^ self ffiCall: #(void gtk_widget_set_app_paintable (self, gboolean app_paintable))
@@ -37,7 +40,7 @@ GtkDrawingArea >> connectDraw: aBlock [
 	"self eliotConnectDraw: aBlock"
 ]
 
-{ #category : #private }
+{ #category : #drawing }
 GtkDrawingArea >> draw: cr [
 
 	self drawOnAthensCanvas: (AthensCairoCanvas fromHandle: cr).
@@ -97,6 +100,12 @@ GtkDrawingArea >> eliotConnectSignal: signalName callback: aCallback data: aData
 ]
 
 { #category : #private }
+GtkDrawingArea >> events: events [
+	
+	self ffiCall: #(void gtk_widget_set_events (self, gint events))
+]
+
+{ #category : #private }
 GtkDrawingArea >> extent: aPoint [
 	requestedSize := aPoint.
 	self setSizeRequestWidth: aPoint x height: aPoint y
@@ -128,6 +137,14 @@ GtkDrawingArea >> initialize [
 	self vExpand: true.
 	self appPaintable: true.
 	self connectDraw: [ :cr | self draw: cr ]
+]
+
+{ #category : #initialization }
+GtkDrawingArea >> registerToAllEvents [
+	"call this method when you want to receive events of anykind. 
+	 you will need to connect to them and handle them after."
+
+	self events: GDK_ALL_EVENTS_MASK value
 ]
 
 { #category : #private }

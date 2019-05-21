@@ -6,6 +6,8 @@ https://developer.gnome.org/gdk3/stable/gdk3-Event-Structures.html#GdkEventKey
 Class {
 	#name : #GdkEventKey,
 	#superclass : #GdkEvent,
+	#traits : 'TGdkEventState',
+	#classTraits : 'TGdkEventState classTrait',
 	#instVars : [
 		'keyValue',
 		'wasHandled'
@@ -30,12 +32,6 @@ Class {
 	#category : #'Mars-Gtk-Base-Events'
 }
 
-{ #category : #private }
-GdkEventKey class >> eventNew: type [
-
-	^ self ffiCall: #(GdkEventKey *gdk_event_new (GdkEventType type)) module: GdkLibrary
-]
-
 { #category : #'field definition' }
 GdkEventKey class >> fieldsDesc [ 
 	"self rebuildFieldAccessors"
@@ -58,7 +54,7 @@ GdkEventKey class >> fieldsDesc [
 { #category : #'instance creation' }
 GdkEventKey class >> newKeyPress [
 
-	self eventNew: GDK_KEY_PRESS
+	^ self newType: GDK_KEY_PRESS
 ]
 
 { #category : #'instance creation' }
@@ -76,7 +72,7 @@ GdkEventKey class >> newKeyPressValue: keyVal shift: shiftBoolean meta: metaBool
 { #category : #'instance creation' }
 GdkEventKey class >> newKeyRelease [
 
-	self eventNew: GDK_KEY_RELEASE
+	^ self newType: GDK_KEY_RELEASE
 ]
 
 { #category : #'instance creation' }
@@ -101,8 +97,7 @@ GdkEventKey class >> newType: aType value: keyVal shift: shiftBoolean meta: meta
 	controlBoolean ifTrue: [ state := state | GDK_CONTROL_MASK ].
 	optionBoolean ifTrue: [ state := state | GDK_MOD1_MASK "Mod1 = Alt, Option" ].
 	
-	self flag: #TODO. "fromHandle: is workaround for a temporal problem"
-	^ (self fromHandle: (self eventNew: aType)) 		
+	^ (self newType: aType)
 		keyval: keyVal;
 		state: state;
 		yourself
@@ -139,57 +134,15 @@ GdkEventKey >> hardware_keycode: anObject [
 ]
 
 { #category : #testing }
-GdkEventKey >> hasAltModifier [
-
-	^ self hasMod1
-]
-
-{ #category : #testing }
-GdkEventKey >> hasAnyModifier [
-
-	^ self state ~= 0
-]
-
-{ #category : #testing }
-GdkEventKey >> hasControlModifier [
-
-	^ self hasModifier: GDK_CONTROL_MASK
-]
-
-{ #category : #testing }
-GdkEventKey >> hasLockModifier [
-
-	^ self hasModifier: GDK_LOCK_MASK	
-]
-
-{ #category : #testing }
-GdkEventKey >> hasMetaModifier [
-
-	^ self hasModifier: GDK_META_MASK
-]
-
-{ #category : #testing }
-GdkEventKey >> hasMod1 [
-
-	^ self hasModifier: GDK_MOD1_MASK
-]
-
-{ #category : #testing }
-GdkEventKey >> hasModifier: aModifier [
-
-	^ (self state & (aModifier value)) = aModifier value
-]
-
-{ #category : #testing }
-GdkEventKey >> hasShiftModifier [
-
-	^ self hasModifier: GDK_SHIFT_MASK
-]
-
-{ #category : #testing }
 GdkEventKey >> isEscape [
 
 	^ self keyValue = KEY_Escape
+]
+
+{ #category : #testing }
+GdkEventKey >> isEventKey [
+
+	^ false
 ]
 
 { #category : #testing }
@@ -202,6 +155,18 @@ GdkEventKey >> isKeyDown [
 GdkEventKey >> isKeyLeft [
 
 	^ self keyValue = KEY_Left
+]
+
+{ #category : #testing }
+GdkEventKey >> isKeyPress [
+
+	^ false
+]
+
+{ #category : #testing }
+GdkEventKey >> isKeyRelease [
+
+	^ false
 ]
 
 { #category : #testing }
@@ -326,6 +291,7 @@ GdkEventKey >> type: anObject [
 
 { #category : #compatibility }
 GdkEventKey >> wasHandled [
+	"this should be in package Mars-Gtk-Morphic but I need the instance variable"
 
 	^ wasHandled ifNil: [ wasHandled := false ]
 ]

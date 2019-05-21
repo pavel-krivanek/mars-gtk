@@ -1,6 +1,13 @@
+"
+struct GdkEventMotion
+
+Generated when the pointer moves.
+"
 Class {
 	#name : #GdkEventMotion,
 	#superclass : #GdkEvent,
+	#traits : 'TGdkEventState',
+	#classTraits : 'TGdkEventState classTrait',
 	#classVars : [
 		'OFFSET_AXES',
 		'OFFSET_DEVICE',
@@ -19,12 +26,12 @@ Class {
 }
 
 { #category : #'field definition' }
-GdkEventMotion class >> fieldsDesc [ 
+GdkEventMotion class >> fieldsDesc [
 	"self rebuildFieldAccessors"
-	
+
 	^ #(
   GdkEventType type;
-  "GdkWindow" void *window;
+  "GdkWindow *"void *window;
   gint8 send_event;
   guint32 time;
   gdouble x;
@@ -32,10 +39,22 @@ GdkEventMotion class >> fieldsDesc [
   gdouble *axes;
   guint state;
   gint16 is_hint;
-  "GdkDevice" void *device;
+  "GdkDevice *"void *device;
   gdouble x_root;
-  gdouble y_root;	
+  gdouble y_root; 
 	)
+]
+
+{ #category : #testing }
+GdkEventMotion class >> isType: aType [
+
+	^ aType = GDK_MOTION_NOTIFY
+]
+
+{ #category : #visiting }
+GdkEventMotion >> accept: aVisitor [
+
+	^ aVisitor visitMouseMoveEvent: self
 ]
 
 { #category : #'accessing structure variables' }
@@ -62,6 +81,12 @@ GdkEventMotion >> device: anObject [
 	handle pointerAt: OFFSET_DEVICE put: anObject getHandle.
 ]
 
+{ #category : #testing }
+GdkEventMotion >> isEventMotion [
+
+	^ true
+]
+
 { #category : #'accessing structure variables' }
 GdkEventMotion >> is_hint [
 	"This method was automatically generated"
@@ -74,7 +99,7 @@ GdkEventMotion >> is_hint: anObject [
 	handle signedShortAt: OFFSET_IS_HINT put: anObject
 ]
 
-{ #category : #accessing }
+{ #category : #compatibility }
 GdkEventMotion >> position [
 
 	^ self x @ self y

@@ -35,6 +35,7 @@ GtkTypes class >> initialize [
 	gint := #int.
 	gint8 := #int8.
 	guint8 := #uint8.
+	gint16 := #int16.
 	guint16 := #uint16.
 	guint := #uint.
 	guint32 := #uint32.

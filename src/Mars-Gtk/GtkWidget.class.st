@@ -198,6 +198,23 @@ GtkWidget >> connectEnterNotify: aBlock [
 
 	^ (GEnterNotifyEventCallback do: aBlock) connectTo: self
 
+GtkWidget >> connectEvent: aBlock [
+
+	^ self 
+		connect: 'event' 
+		signature: #(gboolean (void *widget, void *event, gpointer user_data))
+		do: [ :widget :event :user_data | 
+			aBlock value: (GdkEvent newConcreteFromHandle: event) ]
+]
+
+{ #category : #signaling }
+GtkWidget >> connectEventAfter: aBlock [
+
+	^ self 
+		connect: 'event-after' 
+		signature: #(gboolean (void *widget, void *event, gpointer user_data))
+		do: [ :widget :event :user_data | 
+			aBlock value: (GdkEvent newConcreteFromHandle: event) ]
 ]
 
 { #category : #signaling }
@@ -246,6 +263,11 @@ GtkWidget >> connectMotionNotify: aBlock [
 
 	^ (GMotionNotifyEventCallback do: aBlock) connectTo: self
 
+GtkWidget >> connectRealize: aBlock [
+
+	^ self 
+		connect: 'realize' 
+		do: aBlock
 ]
 
 { #category : #signaling }

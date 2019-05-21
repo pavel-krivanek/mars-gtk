@@ -1,3 +1,8 @@
+"
+Used for button press and button release events.
+
+https://developer.gnome.org/gdk3/stable/gdk3-Event-Structures.html#GdkEventButton
+"
 Class {
 	#name : #GdkEventButton,
 	#superclass : #GdkEvent,
@@ -21,12 +26,6 @@ Class {
 	#category : #'Mars-Gtk-Base-Events'
 }
 
-{ #category : #private }
-GdkEventButton class >> eventNew: type [
-
-	^ self ffiCall: #(GdkEventButton *gdk_event_new (GdkEventType type)) module: GdkLibrary
-]
-
 { #category : #'field definition' }
 GdkEventButton class >> fieldsDesc [ 
 	"self rebuildFieldAccessors"
@@ -48,9 +47,15 @@ GdkEventButton class >> fieldsDesc [
 ]
 
 { #category : #'instance creation' }
-GdkEventButton class >> newPressEvent [
+GdkEventButton class >> newButtonPress [
 
 	^ self newType: GDK_BUTTON_PRESS
+]
+
+{ #category : #'instance creation' }
+GdkEventButton class >> newButtonRelease [
+
+	^ self newType: GDK_BUTTON_RELEASE
 ]
 
 { #category : #'instance creation' }
@@ -101,6 +106,12 @@ GdkEventButton >> device: anObject [
 GdkEventButton >> isDoubleClick [ 
 
 	^ self type = GDK_2BUTTON_PRESS
+]
+
+{ #category : #testing }
+GdkEventButton >> isEventButton [
+
+	^ true
 ]
 
 { #category : #testing }
