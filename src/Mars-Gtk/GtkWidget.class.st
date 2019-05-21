@@ -197,6 +197,7 @@ GtkWidget >> connectEnterNotify: aBlock [
 	 aBlock needs to answer a boolean to stop or not event propagation"
 
 	^ (GEnterNotifyEventCallback do: aBlock) connectTo: self
+]
 
 GtkWidget >> connectEvent: aBlock [
 
