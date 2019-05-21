@@ -16,6 +16,12 @@ SpecGtkBackend >> adapterBindingsClass [
 	^ GtkAdapterBindings
 ]
 
+{ #category : #'ui notifying' }
+SpecGtkBackend >> codeCssProvider [
+
+	^ GtkStyleProvider new
+]
+
 { #category : #initialization }
 SpecGtkBackend >> initialize [ 
 	

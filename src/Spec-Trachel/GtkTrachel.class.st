@@ -118,5 +118,6 @@ GtkTrachel >> trachelCanvas: anObject [
 	trachelCanvas morph: self.
 	
 	activeSurface := self newCairoSurface.
-	self sizeRequest: trachelCanvas extent
+	
+"	self sizeRequest: trachelCanvas extent"
 ]

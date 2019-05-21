@@ -32,8 +32,8 @@ GtkTrachelAdapter >> addModelTo: gtkWidget [
 	widget events: GDK_ALL_EVENTS_MASK value.
 
 	"widget connectClicked: [ self inspect ]."
-"	widget connectKeyPressEvent:  [ :event | self inform: event type asString ].
-"	
+	widget connectKeyPressEvent:  [ :event | self inform: event type asString. true ].
+	
 	widget connectButtonPressEvent:  [ :event | self mouseDown: event. true ].
 	widget connectButtonReleaseEvent:  [ :event | self mouseUp: event. true ].
 	widget connectButtonReleaseEvent:  [ :event | true ].
