@@ -40,6 +40,7 @@ GtkTrachelAdapter >> addModelTo: gtkWidget [
 	widget connectMotionNotify: [ :event | self mouseMove: event. true ].
 	widget connectEnterNotify: [ :event | self mouseEnter: event. true ].
 	widget connectLeaveNotify: [ :event | self mouseLeave: event. true ].
+	widget connectSizeAllocate: [ :aRect | self resizeTo: aRect ].
 
 	
 "	widget connectMotionNotify: [ :arg | self inform: arg x asString. false ].
@@ -252,6 +253,15 @@ GtkTrachelAdapter >> relativePositionFor: evt [
 	"Return the position within the window"
 			
 	^ "trachelCanvas camera fromPixelToSpace: "evt position
+]
+
+{ #category : #accessing }
+GtkTrachelAdapter >> resizeTo: aRect [
+
+	aRect extent logCr.
+	trachelCanvas extent: aRect extent.
+	model announcer announce: (PresenterResized new extent: aRect extent).
+	widget repaint.
 ]
 
 { #category : #accessing }

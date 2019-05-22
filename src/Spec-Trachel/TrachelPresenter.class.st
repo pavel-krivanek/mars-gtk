@@ -22,3 +22,11 @@ TrachelPresenter >> trachelCanvas [
 TrachelPresenter >> trachelCanvas: anObject [
 	trachelCanvas := anObject
 ]
+
+{ #category : #accessing }
+TrachelPresenter >> whenPresenterResized: aBlock [
+
+	self announcer 
+		when: PresenterResized 
+		do: [ :ann | aBlock cull: ann extent ]
+]
