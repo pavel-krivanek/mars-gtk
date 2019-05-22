@@ -199,7 +199,7 @@ GtkWidget >> connectEnterNotify: aBlock [
 	^ (GEnterNotifyEventCallback do: aBlock) connectTo: self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #signaling }
 GtkWidget >> connectEvent: aBlock [
 
 	^ self 
@@ -266,7 +266,7 @@ GtkWidget >> connectMotionNotify: aBlock [
 	^ (GMotionNotifyEventCallback do: aBlock) connectTo: self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #signaling }
 GtkWidget >> connectRealize: aBlock [
 
 	^ self 
