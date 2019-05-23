@@ -258,7 +258,7 @@ GtkTrachelAdapter >> relativePositionFor: evt [
 { #category : #accessing }
 GtkTrachelAdapter >> resizeTo: aRect [
 
-	aRect extent logCr.
+
 	trachelCanvas extent: aRect extent.
 	model announcer announce: (PresenterResized new extent: aRect extent).
 	widget repaint.

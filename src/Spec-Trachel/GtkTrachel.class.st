@@ -66,6 +66,14 @@ GtkTrachel >> events: events [
 
 ]
 
+{ #category : #drawing }
+GtkTrachel >> initialize [
+
+	super initialize.
+	
+	self vExpand: false.
+]
+
 { #category : #accessing }
 GtkTrachel >> newCairoSurface [
 	| newSurface |
@@ -105,6 +113,12 @@ GtkTrachel >> setSourceSurfaceTo: cr surface: surface x: x y: y [
 	self 
 		ffiCall: #(void cairo_set_source_surface (void *cr, void *surface, double x,  double y))
 		module: CairoLibrary
+]
+
+{ #category : #accessing }
+GtkTrachel >> sizeRequest: aPoint [
+
+	self setSizeRequestWidth: aPoint x height: aPoint y
 ]
 
 { #category : #accessing }

@@ -14,6 +14,16 @@ TrachelPresenter class >> adapterName [
 ]
 
 { #category : #accessing }
+TrachelPresenter >> initializePrivateHooks [
+
+	trachelCanvas := TRCanvas new.
+
+	self initializeWidgets.
+	self initializePresenter.
+	self updatePresenter.
+]
+
+{ #category : #accessing }
 TrachelPresenter >> trachelCanvas [
 	^ trachelCanvas
 ]
