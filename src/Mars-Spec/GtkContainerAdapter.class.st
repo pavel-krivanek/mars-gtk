@@ -11,10 +11,22 @@ GtkContainerAdapter >> add: anAdapter [
 		this packStart: anAdapter asWidget ]
 ]
 
+{ #category : #protocol }
+GtkContainerAdapter >> isRedrawable [
+
+	^ true
+]
+
 { #category : #building }
 GtkContainerAdapter >> newWidget [
 
 	^ GtkBox newVertical
 		show;
 		yourself
+]
+
+{ #category : #protocol }
+GtkContainerAdapter >> removeSubWidgets [
+
+
 ]
