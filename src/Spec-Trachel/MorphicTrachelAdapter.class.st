@@ -1,6 +1,6 @@
 Class {
 	#name : #MorphicTrachelAdapter,
-	#superclass : #AbstractMorphicAdapter,
+	#superclass : #SpAbstractMorphicAdapter,
 	#instVars : [
 		'trachelCanvas'
 	],

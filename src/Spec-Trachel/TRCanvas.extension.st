@@ -3,7 +3,7 @@ Extension { #name : #TRCanvas }
 { #category : #'*Spec-Trachel' }
 TRCanvas >> asSpecAdapter [
 
-	^ (SpecBindings value 
+	^ (SpBindings value 
 		adapterClass: #TrachelAdapter)
 		trachelCanvas: self
 ]

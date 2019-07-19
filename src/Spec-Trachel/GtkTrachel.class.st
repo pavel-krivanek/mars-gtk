@@ -41,6 +41,9 @@ GtkTrachel >> draw: cr [
 { #category : #drawing }
 GtkTrachel >> drawOnAthensCanvas: aCanvas [
 
+	aCanvas surface clear: Color white.
+
+
 	"We display the elements that are subject to the camera"
 	aCanvas pathTransform
 			translateBy: (((aCanvas surface extent)) / 2) asFloatPoint;

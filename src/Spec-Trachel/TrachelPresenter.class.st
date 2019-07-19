@@ -1,6 +1,6 @@
 Class {
 	#name : #TrachelPresenter,
-	#superclass : #AbstractWidgetPresenter,
+	#superclass : #SpAbstractWidgetPresenter,
 	#instVars : [
 		'trachelCanvas'
 	],
