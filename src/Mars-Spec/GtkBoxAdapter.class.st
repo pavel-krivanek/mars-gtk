@@ -51,14 +51,28 @@ GtkBoxAdapter >> buildWidget [
 
 { #category : #building }
 GtkBoxAdapter >> layout: aLayout [
-
+	| oldWidget |
 	"build of widget was differed up to here (to know what is the direction)"
+	oldWidget := widget.
 	widget := aLayout direction newWidgetOn: self.
-	widget 
+	widget
 		homogeneous: aLayout isHomogeneous;
 		spacing: aLayout spacing;
-		borderWidth: aLayout borderWidth;
-		show.
+		borderWidth: aLayout borderWidth.
+		
+	(oldWidget notNil and: [ oldWidget data notNil ])
+		ifTrue: [ 
+			oldWidget data owner owner adapter widget children first removeAll.
+			oldWidget data owner owner adapter widget children first add: widget ].
+
+	"
+		 ]
+	 widget children
+	self model owner adapter widget children ifNotEmpty: [ :anArray | 
+		self halt.
+		anArray first removeAll.
+		anArray first add: widget ]."
+	widget show
 ]
 
 { #category : #factory }
