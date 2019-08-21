@@ -1,6 +1,6 @@
 Class {
 	#name : #GtkBackendForTest,
-	#superclass : #AbstractBackendForTest,
+	#superclass : #SpAbstractBackendForTest,
 	#instVars : [
 		'app'
 	],
