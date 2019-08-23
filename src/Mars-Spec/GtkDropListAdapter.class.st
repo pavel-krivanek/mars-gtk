@@ -44,7 +44,7 @@ GtkDropListAdapter >> displayedIcon [
 { #category : #building }
 GtkDropListAdapter >> modelItemsAsDisplay [
 	
-	^ self model model shownItems collect: [ :each | self model displayForItem: each]
+	^ self model model items collect: [ :each | self model displayForItem: each]
 	
 ]
 
