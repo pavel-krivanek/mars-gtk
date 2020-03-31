@@ -12,6 +12,7 @@ BaselineOfMarsCore >> baseline: spec [
 		for: #common
 		do: [ 
 			spec postLoadDoIt: #postLoad.
+			self beacon: spec.
 
 			spec
 				"core"
